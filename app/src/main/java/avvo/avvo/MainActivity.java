@@ -1,17 +1,17 @@
 package avvo.avvo;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.quickblox.auth.QBAuth;
 import com.quickblox.auth.model.QBSession;
 import com.quickblox.core.QBCallbackImpl;
-import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.QBEntityCallbackImpl;
 import com.quickblox.core.QBSettings;
 import com.quickblox.core.result.Result;
@@ -21,14 +21,13 @@ import com.quickblox.customobjects.result.QBCustomObjectResult;
 import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -41,6 +40,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -120,23 +120,37 @@ QBAuth.createSession(new QBEntityCallbackImpl<QBSession>() {
 
 
 class RetrieveFeedTask extends AsyncTask <Void, Void, Wrapper>{
-   // ArrayList<String> list = new ArrayList();
-
-    HashMap<String, String> list=new HashMap();
-
-ArrayList<String> list1=new ArrayList();
+  ArrayList<String> list = new ArrayList();
     HashMap<String,Object> fields = new HashMap<String, Object>();
+    String s_name;
 
+
+    ArrayList<String> valSetOne = new ArrayList<String>();
+    ArrayList<String> valSetTwo = new ArrayList<String>();
+    ArrayList<String> v1 = new ArrayList<String>();
+    ArrayList<String> v2 = new ArrayList<String>();
+    Set myset;
+
+    int k = 17001;
+   // private Handler mHandler = new Handler(Looper.getMainLooper());
     @Override
     protected Wrapper doInBackground(Void... params)
     {
 
-
         Wrapper w = new Wrapper();
-        String str1 = "https://api.avvo.com/api/1/lawyers/search.json?page=1";
+try {
+    //  for(k=1;k<=153258;k++)  {
+    while (k <= 17500 ) {
 
-        String credentials = "joshua.cleetus@gmail.com" + ":" + "gotnerds";
         try {
+
+
+            String str1 = "https://api.avvo.com/api/1/lawyers/search.json?page=" + k;
+
+            Log.d("Value of k:",Integer.toString(k));
+            k = k + 1;
+            String credentials = "joshua.cleetus@gmail.com" + ":" + "gotnerds";
+
             HttpUriRequest request = new HttpGet(str1); // Or HttpPost(), depends on your needs
             String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
             request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
@@ -148,105 +162,213 @@ ArrayList<String> list1=new ArrayList();
 //this is the login response, logged so you can see it - just use the second part of the log for anything you want to do with the data
             String resp = EntityUtils.toString(response.getEntity());
 
-            Log.d("Avvo Data:",resp);
+            Log.d("Avvo Data:", resp);
 
-            JSONObject jObj =new JSONObject(resp);
+            JSONObject jObj = new JSONObject(resp);
 
-            JSONArray result=jObj.getJSONArray("results");
+            JSONArray result = jObj.getJSONArray("results");
 
             if (result != null) {
+                Integer length = result.length();
 
+                for (int i = 0; i < length; i++) {
 
-                for (int i = 0; i < result.length(); i++) {
                     try {
-                       JSONObject c=result.getJSONObject(i);
-                    if(!list.containsKey("website"))
-                    {
-                        list.put("website",c.getString("website"));
-                    }
-                        else {
-                        list.put("website","nil");
-                    }
-                    /*
-                        list.add(c.getString("name"));
-                        list.add(c.getString("phone"));
-                        list.add(c.getString("avvo_rating"));
-                        list.add(c.getString("client_rating"));
-                        list.add(c.getString("client_rating_count"));
-                        list.add(c.getString("sponsored"));
-                        list.add(c.getString("address"));
-                       //list.add(c.getString("website"));
-                        list.add(c.getString("tiny_image_url"));
-                        list.add(c.getString("tiny_image_url_secure"));
-                       list.add(c.getString("image_url"));
-                        list.add(c.getString("image_url_secure"));
-                        list.add(c.getString("profile_url"));
-                        list.add(c.getString("client_reviews_url"));*/
-                      /*  Log.d("ID",id);
-                        //Log.d("NAME",name);
-                        Log.d("AVVORATING",avvorating);
-                        Log.d("CLIENTRATING",clientrating);
-                        Log.d("CLIENTRATINGCOUNT",clientratingcount);
-                        Log.d("SPONSORED",sponsored);
-                       // Log.d("PHONE",phone);
-                        Log.d("ADDRESS",address);
-                        Log.d("WEBSITE",website);
-                        Log.d("TINYIMAGEURL",tinyimageurl);
-                        Log.d("TINYIMAGEURLSECURE",tinyimageurlsecure);
-                        Log.d("IMAGEURL",imageurl);
-                        Log.d("IMAGEURLSECURE",imageurlsecure);
-                        Log.d("PROFILEURL",profileurl);
-                        Log.d("CLIENTVIEWURL",clientreviewsurl);*/
+                        JSONObject c = result.getJSONObject(i);
+                        // String name=c.getString("website");
+                        //Log.d("Hanna",name);
+                        //String name=c.getString("website");
+                        //list.put("website",name);
+                        // List<List<String>> l = new ArrayList<List<String>>();
 
+                        // LinkedHashMap list= new LinkedHashMap();
 
-
-                        w.nm=list;
-
-
-
-
-                       /* QBCustomObjects.createObject(qbCustomObject, new QBEntityCallbackImpl() {
-                        @Override
-                        public void onComplete(Result result1){
-                            if(result1.isSuccess()){
-                                QBCustomObjectResult qbCustomObjectResult=(QBCustomObjectResult) result1;
-                                QBCustomObject qbCustomObject=qbCustomObjectResult.getCustomObject();
-                                Log.d("New record",qbCustomObject.toString());
-                            }
-
+                        if (c.isNull("id")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("id"));
                         }
 
-                        });*/
-
-
-                JSONArray b=c.getJSONArray("specialties");
-
-                        for(int j=0;j<b.length();j++)
-                        {
-
-                        JSONObject a=b.getJSONObject(j);
-                            list1.add(a.getString("name"));
-                            list1.add(a.getString("percent"));
-                          /*  Log.d("SPECIALITY",specialname);
-                            Log.d("PERCENT",percent);*/
+                        if (c.isNull("name")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("name"));
                         }
 
-                        w.nm1=list1;
+                       if (c.isNull("phone")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("phone"));
+                        }
 
+                        if (c.isNull("avvo_rating")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("avvo_rating"));
+                        }
+
+                        if (c.isNull("client_rating")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("client_rating"));
+                        }
+
+                        if (c.isNull("client_rating_count")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("client_rating_count"));
+                        }
+
+                        if (c.isNull("sponsored")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("sponsored"));
+                        }
+
+                        if (c.isNull("address")) {
+                            list.add("null");
+                        } else {
+                            list.add(c.getString("address"));
+                        }
+
+                        if (c.isNull("website")) {
+                            list.add("null");
+
+                        } else {
+                            list.add(c.getString("website"));
+                        }
+
+                        if (c.isNull("tiny_image_url")) {
+                            list.add("null");
+
+                        } else {
+                            list.add(c.getString("tiny_image_url"));
+                        }
+
+                        if (c.isNull("tiny_image_url_secure")) {
+                            list.add("null");
+
+                        } else {
+                            list.add(c.getString("tiny_image_url_secure"));
+                        }
+
+                        if (c.isNull("image_url")) {
+                            list.add("null");
+
+                        } else {
+                            list.add(c.getString("image_url"));
+                        }
+
+                        if (c.isNull("image_url_secure")) {
+                            list.add("null");
+
+                        } else {
+                            list.add(c.getString("image_url_secure"));
+                        }
+
+                        if (c.isNull("profile_url")) {
+                            list.add("null");
+
+                        } else {
+                            list.add(c.getString("profile_url"));
+                        }
+
+                        if (c.isNull("client_reviews_url")) {
+                            list.add("null");
+
+                        } else {
+                            list.add(c.getString("client_reviews_url"));
+                        }
+
+
+
+                        HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+
+                     JSONArray b = c.getJSONArray("specialties");
+
+                        for (int j = 0; j < b.length(); j++) {
+
+
+                            JSONObject a = b.getJSONObject(j);
+
+                            v1.add(String.valueOf(a));
+
+
+                        }
+                        list.add(String.valueOf(v1));
+                        v1.clear();
+                        w.nm = list;
+
+
+
+                           /*    valSetOne.add(a.getString("name"));
+                               valSetTwo.add(a.getString("percent"));
+
+
+                               map.put("special_name", valSetOne);
+                               map.put("special_percent", valSetTwo);*/
+
+
+
+                               // list.add(a.getString("percent"));
+                              /*
+                               v1.add(String.valueOf(map));*/
+                               // v2.add(String.valueOf(map));
+                               // Log.d("SPECIALITY",String.valueOf(map));
+                               // Log.d("PERCENT",String.valueOf(map));
+
+
+                     /*   myset = map.keySet();
+                        myset = Collections.emptySet();*/
+
+
+
+                       /* map.remove("special_name");
+                        map.remove("special_percent");*/
+                        //map.clear();
+                      //  map=Collections.<String, List<String>>emptyMap();
+
+
+
+                        //map.clear();
+
+
+                       /* map.remove("special_name");
+                        map.remove("special_percent");*/
+
+
+
+
+
+                      //  Log.d("AVVOLIST", String.valueOf(w.nm) + "\n");
+
+                           /* w.nm=valSetOne;
+                            w.nm=valSetTwo;*/
+
+                    }catch(ArrayIndexOutOfBoundsException e){
+                        e.printStackTrace();
                     }
-
-                    catch(Exception e){
+                    catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
 
             }
-        }
-        catch(Exception e){
-            e.printStackTrace();
 
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return w;
+    }
+}catch(IndexOutOfBoundsException e){
+    e.printStackTrace();
+}
+catch (Exception e) {
+    e.printStackTrace();
+}
+       return w;
     }
 
 
@@ -255,149 +377,59 @@ ArrayList<String> list1=new ArrayList();
         // TODO: check this.exception
         // TODO: do something with the feed
 
-        //Log.d("Names",w.nm.toString());
-       // String[] lines=w.nm.toString();
 
-        //  String lines=w.nm.toString();
-       /* try {
-            BufferedReader br=new BufferedReader(new StringReader(lines));
-            String line=br.readLine().toString();
-            while (line!=null)
-            {*/
+
+
 
 try {
 
-    for (int i = 0; i <= list.size(); i++) {
-        for (int j = 0; j <= list1.size(); j++) {
-
-            fields.put("website",list.get(i));
-        // Log.d("list",list.get(i));
-       // fields.put("id_lawyers", list.get(i));
-       /* fields.put("name", list.get(i + 1));
-        fields.put("phone", list.get(i + 2));
-        fields.put("avvo_rating", list.get(i + 3));
-        fields.put("client_rating", list.get(i + 4));
-        fields.put("client_rating_count", list.get(i + 5));
-        fields.put("sponsored", list.get(i + 6));
-        fields.put("address", list.get(i + 7));
-        // fields.put("website",list.get(i+8));
-        fields.put("tiny_image_url", list.get(i + 8));
-        fields.put("tiny_image_url_secure", list.get(i + 9));
-        fields.put("image_url", list.get(i + 10));
-        fields.put("image_url_secure", list.get(i + 11));
-        fields.put("profile_url", list.get(i + 12));
-        fields.put("client_reviews_url", list.get(i + 13));*/
+    for (int j = 0; j <= list.size(); j++) {
 
 
-           // i = i + 13;
-
-             /*   fields.put("specialties_name", list1.get(j));
-                fields.put("specialties_percent", list1.get(j + 1));
-                j = j + 1;*/
-
-
-
-
-                QBCustomObject qbCustomObject = new QBCustomObject();
-                qbCustomObject.setClassName("Lawyers");
-                qbCustomObject.setFields(fields);
-
-                QBCustomObjects.createObject(qbCustomObject, new QBCallbackImpl() {
-                    @Override
-                    public void onComplete(Result result1) {
-                        if (result1.isSuccess()) {
-                            QBCustomObjectResult qbCustomObjectResult = (QBCustomObjectResult) result1;
-                            QBCustomObject qbCustomObject = qbCustomObjectResult.getCustomObject();
-                            Log.d("New record", qbCustomObject.toString());
-                        } else {
-                            Log.e("Errors", result1.getErrors().toString());
-                        }
-                    }
-                });
-
-            }
-
-}
-
- /*    for (int j = 0; j <= list1.size(); j++) {
-            fields.put("specialties_name", list1.get(j));
-            fields.put("specialties_percent", list1.get(j + 1));
-            j = j + 1;
-            //Log.d("i value", Integer.toString(i));
-            QBCustomObject qbCustomObject1 = new QBCustomObject();
-            qbCustomObject1.setClassName("Lawyers");
-            qbCustomObject1.setFields(fields);
-            QBCustomObjects.createObject(qbCustomObject, new QBCallbackImpl() {
-                @Override
-                public void onComplete(Result result2) {
-                    if (result2.isSuccess()) {
-                        QBCustomObjectResult qbCustomObjectResult1 = (QBCustomObjectResult) result2;
-                        QBCustomObject qbCustomObject1 = qbCustomObjectResult1.getCustomObject();
-                        Log.d("New record", qbCustomObject1.toString());
-                    } else {
-                        Log.e("Errors", result2.getErrors().toString());
-                    }
-                }
-            });
+        fields.put("id_lawyers", list.get(j));
+        fields.put("name",list.get(j+1));
+        fields.put("phone", list.get(j + 2));
+        fields.put("avvo_rating", list.get(j + 3));
+        fields.put("client_rating", list.get(j + 4));
+        fields.put("client_rating_count", list.get(j + 5));
+        fields.put("sponsored", list.get(j + 6));
+        fields.put("address", list.get(j + 7));
+        fields.put("website",list.get(j + 8));
+        fields.put("tiny_image_url", list.get(j + 9));
+        fields.put("tiny_image_url_secure", list.get(j + 10));
+        fields.put("image_url", list.get(j + 11));
+        fields.put("image_url_secure", list.get(j + 12));
+        fields.put("profile_url", list.get(j + 13));
+        fields.put("client_reviews_url", list.get(j + 14));
+        fields.put("specialties",list.get(j + 15));
+        // fields.put("special_name",list.get(i+2));
+        //fields.put("special_percent", list.get(i+3));
 
 
+        j = j + 15;
+        QBCustomObject qbCustomObject = new QBCustomObject();
+        qbCustomObject.setClassName("Final_avvo2");
+        qbCustomObject.setFields(fields);
 
-
-    }
-
-
-
-
-
-
-
-
-
-
- for(int j=0;j<=list1.size();j++) {
-        fields.put("specialties_name", list1.get(j));
-        fields.put("specialties_percent", list1.get(j + 1));
-        j = j + 1;
-
-        Log.d("sn", list1.get(j));
-
-        Log.d("sp", list1.get(j + 1));
-        QBCustomObject qbCustomObject1 = new QBCustomObject();
-        qbCustomObject1.setClassName("Lawyers");
-        qbCustomObject1.setFields(fields);
-        QBCustomObjects.createObject(qbCustomObject1, new QBCallbackImpl() {
+        QBCustomObjects.createObject(qbCustomObject, new QBCallbackImpl() {
             @Override
-            public void onComplete(Result result2) {
-                if (result2.isSuccess()) {
-                    QBCustomObjectResult qbCustomObjectResult1 = (QBCustomObjectResult) result2;
-                    QBCustomObject qbCustomObject1 = qbCustomObjectResult1.getCustomObject();
-                    Log.d("New record", qbCustomObject1.toString());
+            public void onComplete(Result result1) {
+                if (result1.isSuccess()) {
+                    QBCustomObjectResult qbCustomObjectResult = (QBCustomObjectResult) result1;
+                    QBCustomObject qbCustomObject = qbCustomObjectResult.getCustomObject();
+                    Log.d("New record", qbCustomObject.toString());
                 } else {
-                    Log.e("Errors", result2.getErrors().toString());
+                    Log.e("Errors", result1.getErrors().toString());
                 }
             }
         });
 
     }
-*/
-
-
-
-
 
 }
 catch(Exception e){
     e.printStackTrace();
 }
-
-
-
-      /*  try{
-
-
-        }   catch(Exception e){
-            e.printStackTrace();
-        }*/
 
 
 
